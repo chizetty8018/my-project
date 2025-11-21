@@ -3,16 +3,58 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Главный класс для демонстрации работы с пиццами
+ * Класс-репозиторий для управления коллекцией пицц Добавлен по требованию
+ * лабораторной работы 5
+ */
+class PizzaRepository {
+
+    private List<Food> pizzas = new ArrayList<>();
+
+    // Методы для работы с коллекцией
+    public void addPizza(Food pizza) {
+        pizzas.add(pizza);
+    }
+
+    public boolean removePizza(int index) {
+        if (index >= 0 && index < pizzas.size()) {
+            pizzas.remove(index);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean updatePizza(int index, Food newPizza) {
+        if (index >= 0 && index < pizzas.size()) {
+            pizzas.set(index, newPizza);
+            return true;
+        }
+        return false;
+    }
+
+    public List<Food> getAllPizzas() {
+        return new ArrayList<>(pizzas);
+    }
+
+    public int getCount() {
+        return pizzas.size();
+    }
+}
+
+/**
+ * Главный класс для демонстрации работы с пиццами Отрефакторен: добавлен
+ * репозиторий, улучшена структура
  */
 public class PizzaDemo {
 
+    private static PizzaRepository pizzaRepo = new PizzaRepository();
+
     /**
-     * Считает сколько пицц весят больше заданного значения
+     * Считает сколько пицц весят больше заданного значения Рефакторинг: теперь
+     * работает с репозиторием
      */
-    public static int countHeavyPizzas(List<Food> pizzas, double minWeight) {
+    public static int countHeavyPizzas(double minWeight) {
         int count = 0;
-        for (Food pizza : pizzas) {
+        for (Food pizza : pizzaRepo.getAllPizzas()) {
             if (pizza.getWeight() > minWeight) {
                 count++;
             }
@@ -21,11 +63,13 @@ public class PizzaDemo {
     }
 
     /**
-     * Показывает цены больших пицц (диаметр больше заданного)
+     * Показывает цены больших пицц (диаметр больше заданного) Рефакторинг:
+     * использует данные из репозитория
      */
-    public static void showBigPizzaPrices(List<Food> pizzas, double minDiameter) {
+    public static void showBigPizzaPrices(double minDiameter) {
         System.out.println("\n🗳️ ПИЦЦЫ БОЛЬШЕ " + minDiameter + " СМ:");
-        for (Food pizza : pizzas) {
+
+        for (Food pizza : pizzaRepo.getAllPizzas()) {
             if (pizza.getDiameter() > minDiameter) {
                 String pizzaType = pizza.getClass().getSimpleName();
                 System.out.println("  " + pizzaType + " - " + pizza.getPrice() + " руб.");
@@ -33,73 +77,76 @@ public class PizzaDemo {
         }
     }
 
+    /**
+     * Создает демонстрационные пиццы Рефакторинг: вынесен в отдельный метод для
+     * чистоты main
+     */
+    private static void createDemoPizzas() {
+        // Пепперони пиццы
+        pizzaRepo.addPizza(new Pepperoni(450.0, 800.0, 30.0, 1200.0, 3));
+        pizzaRepo.addPizza(new Pepperoni(550.0, 1000.0, 35.0, 1500.0, 4));
+        pizzaRepo.addPizza(new Pepperoni(350.0, 600.0, 25.0, 900.0, 2));
+
+        // Сырные пиццы
+        pizzaRepo.addPizza(new Cheese(400.0, 750.0, 30.0, 1100.0, "Моцарелла"));
+        pizzaRepo.addPizza(new Cheese(500.0, 900.0, 35.0, 1300.0, "Чеддер"));
+        pizzaRepo.addPizza(new Cheese(300.0, 550.0, 25.0, 800.0, "Пармезан"));
+
+        // Мясные пиццы
+        pizzaRepo.addPizza(new Meat(480.0, 850.0, 30.0, 1400.0, "Ветчина"));
+        pizzaRepo.addPizza(new Meat(580.0, 1100.0, 35.0, 1700.0, "Салями"));
+        pizzaRepo.addPizza(new Meat(380.0, 650.0, 25.0, 1000.0, "Курица"));
+    }
+
+    /**
+     * Демонстрирует работу репозитория Рефакторинг: добавлена демонстрация CRUD
+     * операций
+     */
+    private static void demonstrateRepository() {
+        System.out.println("\n🔧 ДЕМОНСТРАЦИЯ РЕПОЗИТОРИЯ:");
+
+        // Показываем начальное состояние
+        System.out.println("   Начальное количество пицц: " + pizzaRepo.getCount());
+
+        // Демонстрация обновления
+        pizzaRepo.updatePizza(0, new Pepperoni(500.0, 900.0, 32.0, 1300.0, 4));
+        System.out.println("   Обновили первую пиццу");
+
+        // Демонстрация удаления
+        pizzaRepo.removePizza(1);
+        System.out.println("   Удалили вторую пиццу");
+
+        System.out.println("   Конечное количество пицц: " + pizzaRepo.getCount());
+    }
+
     public static void main(String[] args) {
-        System.out.println("🍕 ДЕМОНСТРАЦИЯ РАБОТЫ С ПИЦЦАМИ!");
+        System.out.println("🍕 ДЕМОНСТРАЦИЯ РАБОТЫ С ПИЦЦАМИ И РЕПОЗИТОРИЕМ!");
 
-        // Создаем список для хранения всех пицц
-        List<Food> pizzaList = new ArrayList<>();
+        // Создаем пиццы через репозиторий
+        createDemoPizzas();
 
-        // 📝 СОЗДАЕМ ПИЦЦЫ ПЕППЕРОНИ
-        System.out.println("\n1. СОЗДАЕМ ПИЦЦЫ ПЕППЕРОНИ:");
-        Pepperoni pep1 = new Pepperoni(450.0, 800.0, 30.0, 1200.0, 3);
-        Pepperoni pep2 = new Pepperoni(550.0, 1000.0, 35.0, 1500.0, 4);
-        Pepperoni pep3 = new Pepperoni(350.0, 600.0, 25.0, 900.0, 2);
-
-        pizzaList.add(pep1);
-        pizzaList.add(pep2);
-        pizzaList.add(pep3);
-
-        System.out.println("   " + pep1);
-        System.out.println("   " + pep2);
-        System.out.println("   " + pep3);
-
-        // 📝 СОЗДАЕМ СЫРНЫЕ ПИЦЦЫ
-        System.out.println("\n2. СОЗДАЕМ СЫРНЫЕ ПИЦЦЫ:");
-        Cheese cheese1 = new Cheese(400.0, 750.0, 30.0, 1100.0, "Моцарелла");
-        Cheese cheese2 = new Cheese(500.0, 900.0, 35.0, 1300.0, "Чеддер");
-        Cheese cheese3 = new Cheese(300.0, 550.0, 25.0, 800.0, "Пармезан");
-
-        pizzaList.add(cheese1);
-        pizzaList.add(cheese2);
-        pizzaList.add(cheese3);
-
-        System.out.println("   " + cheese1);
-        System.out.println("   " + cheese2);
-        System.out.println("   " + cheese3);
-
-        // 📝 СОЗДАЕМ МЯСНЫЕ ПИЦЦЫ
-        System.out.println("\n3. СОЗДАЕМ МЯСНЫЕ ПИЦЦЫ:");
-        Meat meat1 = new Meat(480.0, 850.0, 30.0, 1400.0, "Ветчина");
-        Meat meat2 = new Meat(580.0, 1100.0, 35.0, 1700.0, "Салями");
-        Meat meat3 = new Meat(380.0, 650.0, 25.0, 1000.0, "Курица");
-
-        pizzaList.add(meat1);
-        pizzaList.add(meat2);
-        pizzaList.add(meat3);
-
-        System.out.println("   " + meat1);
-        System.out.println("   " + meat2);
-        System.out.println("   " + meat3);
+        // Демонстрируем работу репозитория
+        demonstrateRepository();
 
         // 📊 ВЫПОЛНЯЕМ ЗАДАНИЯ ИЗ ЛАБОРАТОРНОЙ
         // Задание 4: Подсчитать количество пицц весом больше 700г
         System.out.println("\n📊 ЗАДАНИЕ 4: ПИЦЦЫ ТЯЖЕЛЕЕ 700г");
-        int heavyCount = countHeavyPizzas(pizzaList, 700.0);
+        int heavyCount = countHeavyPizzas(700.0);
         System.out.println("   Количество пицц тяжелее 700г: " + heavyCount);
 
         // Задание 5: Вывести цены пицц диаметром больше 28см
-        showBigPizzaPrices(pizzaList, 28.0);
+        showBigPizzaPrices(28.0);
 
-        // 📈 ДОПОЛНИТЕЛЬНАЯ СТАТИСТИКА
+        // 📈 ОБЩАЯ СТАТИСТИКА (работает с репозиторием)
         System.out.println("\n📈 ОБЩАЯ СТАТИСТИКА:");
-        System.out.println("   Всего пицц создано: " + pizzaList.size());
+        System.out.println("   Всего пицц в репозитории: " + pizzaRepo.getCount());
 
         double totalCost = 0;
-        for (Food pizza : pizzaList) {
+        for (Food pizza : pizzaRepo.getAllPizzas()) {
             totalCost += pizza.getPrice();
         }
         System.out.println("   Общая стоимость всех пицц: " + totalCost + " руб.");
-        System.out.println("   Средняя цена пиццы: " + (totalCost / pizzaList.size()) + " руб.");
+        System.out.println("   Средняя цена пиццы: " + (totalCost / pizzaRepo.getCount()) + " руб.");
 
         System.out.println("\n🎉 ПРОГРАММА ЗАВЕРШЕНА!");
     }
